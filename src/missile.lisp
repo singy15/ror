@@ -15,7 +15,12 @@
 
 (defmethod smi:draw ((this missile))
   (sik:image *tex-missile* (smi:x this) (smi:y this) :rt (sik:to-deg (smi:theta this)) 
-             :sx 0.5 :sy 0.5 :a 1.0 :r 1.0 :g 1.0 :b 1.0))
+             :sx 0.5 :sy 0.5 :a 1.0 :r 1.0 :g 1.0 :b 1.0)
+  
+  (gl:enable :blend)
+  (gl:blend-func :src-alpha :one)
+  (sik:image *tex-exp* (smi:x this) (smi:y this) :a (if (< (smi:tm this) 200) (* 0.2 (/ (smi:tm this) 200)) 0.2) :sx 0.2 :sy 0.2 :manual-blend t)
+  (gl:disable :blend))
 
 (defmethod smi:updt ((this missile))
 	(when (> (smi:y this) (- (sik:get-height) 32.0))
@@ -34,7 +39,18 @@
     (setf (smi:x e) (smi:x this))
     (setf (smi:y e) (smi:y this))
 		(smi:register (actor-mng *game*) e))
+  
+
+
   (call-next-method))
+
+(defmethod smi:handle-collision ((this missile) (they bullet))
+  (smi:kill they)
+  (smi:kill this))
+  
+(defmethod smi:handle-collision ((this missile) (they bullet-aaa))
+  (smi:kill they)
+  (smi:kill this))
 
 (in-package :cl-user)
 

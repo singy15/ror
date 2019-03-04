@@ -28,7 +28,7 @@
 
 (defmethod draw-pre-fire ((this satellite))
   (sik:line (- (smi:x this) 0.5) (+ (smi:y this) 12.0) (- (smi:x this) 0.5) (- (sik:get-height) 30.0) 
-            :r 1.0 :g 0.0 :b 0.0 :a 1.0))
+            :r 1.0 :g 1.0 :b 1.0 :a 0.5 :w 1.0))
 
 (defmethod draw-fire ((this satellite))
   (let (rng half)
@@ -41,8 +41,8 @@
   (sik:circle (- (smi:x this) 0.5) (+ (smi:y this) 13.0) 7.0 50 :a 0.8 :f t))
 
 (defmethod smi:draw ((this satellite))
-  (sik:image *tex-satellite* (smi:x this) (smi:y this) 
-             :r 1.0 :g 1.0 :b 1.0 :a 0.8)
+  (sik:image *tex-satellite* (- (smi:x this) 3.0) (+ (smi:y this) 3.0) 
+             :r 1.0 :g 1.0 :b 1.0 :a 1.0 :sx 0.6 :sy 0.6)
   
   (cond ((in-frame-range this 6 14) 
          (progn

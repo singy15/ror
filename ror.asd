@@ -1,11 +1,10 @@
-
 (in-package :cl-user)
 (defpackage ror-asd
   (:use :cl :asdf))
 (in-package :ror-asd)
 
 (defsystem ror
-  :depends-on (:sikisai :senmei :cl-singleton-mixin)
+  :depends-on ("sikisai" "sikisai-png"  "senmei" "cl-singleton-mixin")
   :components (
     (:module "src"
 			:around-compile
@@ -20,9 +19,18 @@
 				(:file "prototype")
 				(:file "satellite")
 				(:file "explosion")
+				(:file "explosion-small")
 				(:file "boom")
+				(:file "boom-small")
 				(:file "missile")
 				(:file "my-missile")
+				(:file "bomb")
+				(:file "bullet")
+				(:file "bullet-aaa")
+				(:file "bomber")
+				(:file "spawner")
+				(:file "spawner-bullet")
+				(:file "spawner-bomber")
 				(:file "city")
 				(:file "game")
 				(:file "menu")

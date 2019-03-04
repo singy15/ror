@@ -10,7 +10,6 @@
 	(defparameter *game* (make-instance 'menu)))
 
 (defmethod sik:user-display ((this window))
-	(sik:clear)
 	(updt *game*)
 	(draw *game*))
 

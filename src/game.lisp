@@ -1,12 +1,6 @@
-
-(defpackage game
-  (:use cl cl-user)
-  (:export :updt
-					 :draw))
-(in-package :game)
-
 (in-package :ror)
 
+; Class game.
 (defclass game () 
   ((ls-actors
      :accessor ls-actor
@@ -42,55 +36,36 @@
      :accessor actor-mng
      :initform (make-instance 'smi:actor-mng))))
 
-(defun create-city (game)
-	(let ((c (make-instance 'city)))
-    (setf (smi:x c) (* 1.0 (/ (sik:get-width) 10.0)))
-    (setf (smi:y c) (- (sik:get-height) 32.0))
-		; (register game c)
-		(smi:register (actor-mng game) c)
-    )
-	(let ((c (make-instance 'city)))
-    (setf (smi:x c) (* 3.0 (/ (sik:get-width) 10.0)))
-    (setf (smi:y c) (- (sik:get-height) 32.0))
-		; (register game c)
-		(smi:register (actor-mng game) c)
-    )
-	(let ((c (make-instance 'city)))
-    (setf (smi:x c) (* 5.0 (/ (sik:get-width) 10.0)))
-    (setf (smi:y c) (- (sik:get-height) 32.0))
-		; (register game c)
-		(smi:register (actor-mng game) c)
-    )
-	(let ((c (make-instance 'city)))
-    (setf (smi:x c) (* 7.0 (/ (sik:get-width) 10.0)))
-    (setf (smi:y c) (- (sik:get-height) 32.0))
-		; (register game c)
-		(smi:register (actor-mng game) c)
-    )
-	(let ((c (make-instance 'city)))
-    (setf (smi:x c) (* 9.0 (/ (sik:get-width) 10.0)))
-    (setf (smi:y c) (- (sik:get-height) 32.0))
-		; (register game c)
-		(smi:register (actor-mng game) c)
-    )
-  
-  )
-
-(defun load-tex (path width height) 
-  (make-instance 'sik:texture 
-                 :path path
-                 :width width
-                 :height height
-                 ;:intrpl :nearest
-                 :intrpl :linear
-                 ))
-
+; Ctor.
 (defmethod initialize-instance :around ((this game) &key) 
 	(call-next-method this)
-  (defparameter *tex-missile* (load-tex "./resource/missile.raw" 16 16))
-  (defparameter *tex-city* (load-tex "./resource/city.raw" 64 64))
-  (defparameter *tex-satellite* (load-tex "./resource/satellite.raw" 32 32))
+  (defparameter *tex-missile* 
+    (make-instance 'sik:texture :src (sik-png:load-png #p"./resource/missile.png")))
+  (defparameter *tex-city* 
+    (make-instance 'sik:texture :src (sik-png:load-png #p"./resource/city.png")))
+  (defparameter *tex-satellite* 
+    (make-instance 'sik:texture :src (sik-png:load-png #p"./resource/satellite.png")))
+  (defparameter *tex-noise* 
+    (make-instance 'sik:texture :src (sik-png:load-png #p"./resource/noise.png")))
+  (defparameter *tex-exp* 
+    (make-instance 'sik:texture :src (sik-png:load-png #p"./resource/exp.png")))
+  (defparameter *tex-scope* 
+    (make-instance 'sik:texture :src (sik-png:load-png #p"./resource/scope.png")))
+  (defparameter *tex-bomber* 
+    (make-instance 'sik:texture :src (sik-png:load-png #p"./resource/bomber_small.png")))
 	(create-city this))
+
+; Create city.
+(defun create-city (game)
+  (loop for i from 0 below 5 do
+    (let ((c (make-instance 'city)))
+      (setf (smi:x c) (* (+ 1 (* 2 i)) (/ (sik:get-width) 10.0)))
+      (setf (smi:y c) (- (sik:get-height) 32.0))
+      (smi:register (actor-mng game) c))))
+
+; Load texture.
+(defun load-tex (path width height) 
+  (make-instance 'sik:texture :path path :width width :height height))
 
 (defmethod register ((this game) (obj explosion))
   (setf (ls-explosion this) (cons obj (ls-explosion this))))
@@ -114,19 +89,44 @@
  (setf (ls-explosion this) (remove-if #'smi:killedp (ls-explosion this)))
  (setf (ls-missile this) (remove-if #'smi:killedp (ls-missile this))))
 
+; Draw.
 (defmethod draw ((this game))
+  ; Clear.
+  (sik:rect 0.0 0.0 (sik:get-width) (sik:get-height) :r 0.1 :g 0.1 :b 0.1 :a 0.3)
+
   (let ((am (actor-mng this)))
+    ; (sik:image *tex-back* 250.0 220.0 :r 1.0 :g 1.0 :b 1.0 :a 1.0) 
+		; (sik:rect 0.0 (- (sik:get-height) 32.0 9.0) (sik:get-width) (sik:get-height) :r 1.0 :g 1.0 :b 1.0)
+    (sik:line 0.0 (- (sik:get-height) 32.0) (sik:get-width) (- (sik:get-height) 32.0))
     (smi:draw-all-actors am)
     ; (smi:draw-obj am (ls-my-missile this))
     ; (smi:draw-obj am (ls-explosion this))
     ; (smi:draw-obj am (ls-missile this))
     ; (smi:draw-obj am (ls-city this))
     ; (smi:draw-obj am (ls-boom this))
-		(sik:rect 0.0 (- (sik:get-height) 32.0) (sik:get-width) (sik:get-height) :r 0.1 :g 0.1 :b 0.3)
-		(sik:textb (format nil "SCORE : ~A" (score this)) 10 20))
+    ; (sik:image *tex-gnd* 250.0 490.0 :r 1.0 :g 1.0 :b 1.0 :a 1.0) 
+
+    ; Noise.
+    (loop for i from 0 to 100 do 
+          (sik:point (random (sik:get-width)) (random (sik:get-height)) :r 1.0 :g 1.0 :b 1.0 :a 0.3 :s 2.0))
+    
+    (loop for i from 0 to 10 do
+          (let ((r (random 60))
+                (y (random (sik:get-height)))) 
+            (when (equal r 0)
+              (sik:line 0.0 y (sik:get-width) y :a 0.5 :w (random 1.0)))))
+    
+    ; Noise.
+    (sik:image *tex-noise* (/ (sik:get-width) 2.0) (/ (sik:get-height) 2.0) :a 1.0)
+    
+    ; Scope
+    (sik:image *tex-scope* (/ (sik:get-width) 2.0) (/ (sik:get-height) 2.0) :r 1.0 :g 1.0 :b 1.0 :a 0.2)
+    
+		(sik:rect 0.0 (- (sik:get-height) 32.0) (sik:get-width) (sik:get-height) :r 0.0 :g 0.0 :b 0.0)
+		(sik:texts (format nil "SCORE : ~A" (score this)) 10 485 :sx 0.6 :sy 0.7))
 		(when (over this) 
 			(sik:texts "GAME OVER" 180.0 200.0 :aa t :a 0.8 :sx 1.5 :sy 0.8)
-			(sik:texts "PRESS A TO GO MENU" 150.0 250.0 :aa t :a 0.8 :sx 1.0 :sy 0.8)))
+			(sik:texts "CLICK TO GO MENU" 165.0 250.0 :aa t :a 0.8 :sx 1.0 :sy 0.8)))
 
 (defmethod updt ((this game))
   ; (format t "~A~%" (length (ls-my-missile this)))
@@ -179,6 +179,10 @@
         (setf (smi:x mm) (/ (sik:get-width) 2.0))
         (setf (smi:x mm) fire-x)
         (setf (smi:y mm) (sik:get-height))
+
+        (setf (smi:old-x mm) (smi:x mm))
+        (setf (smi:old-y mm) (smi:y mm))
+        
         (setf theta (atan (- (sik:get-mouse-y) (smi:y mm)) (- (sik:get-mouse-x) (smi:x mm))))
         (setf (smi:theta mm) theta)
         (setf dx (* (cos theta) my-missile:*spd*))
@@ -189,6 +193,11 @@
 				(setf (smi:dy mm) dy)
 				(smi:register am mm)))
 
+    ; 3000
+    (when (equal 0 (mod (tm this) (- 3000 (ceiling (* (level this) 2.0)))))
+      (let ((b (make-instance 'spawner-bomber)))
+        (smi:register (actor-mng this) b)))
+    
 		(when (equal 0 (mod (tm this) (- 60 (ceiling (* (level this) 2.0)))))
 			(let* ((x (random (sik:get-width)))
 						 (y -10.0)
@@ -229,7 +238,7 @@
 		(when (equal 0 (length (remove-if-not (lambda (e) (typep e 'city)) (smi:actors am))))
 			(setf (over this) t))
 
-		(when (sik:get-key-push #\a)
+		(when (and (over this) (sik:get-mouse-push :left))
 			(setf *game* (make-instance 'menu)))
 
     (cleanup this)))
